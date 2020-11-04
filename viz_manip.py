@@ -8,12 +8,10 @@ from sympy.plotting import plot_implicit
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-from arm_ik import OrthoManip1Kinematics
-
 
 class CuspidalVisualizer:
 
-    def __init__(self):
+    def __init__(self, kinematics_model):
         plt.ion()
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(131, projection='3d')
@@ -25,7 +23,7 @@ class CuspidalVisualizer:
         # self.ax.set_ylim3d((-1, 2))
         # self.ax.set_zlim3d((0, 2))
         self.ax.set_aspect('auto')
-        self.kinematics = OrthoManip1Kinematics()
+        self.kinematics = kinematics_model
         self.joint_angles = np.zeros(3)
         self.plotted_lines = []
         self.skip = 0
@@ -36,10 +34,10 @@ class CuspidalVisualizer:
         o1_3 = self.kinematics.origins(joint_angles)
         origins = np.vstack((np.array([0, 0, 0]), o1_3))
         try:
-            # if self.skip > 4:
+            if self.skip > 50:
                 self.ax.lines.pop(-1)
-            # else:
-            #     self.skip += 1
+            else:
+                self.skip += 1
         except IndexError: pass
         self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], color='r'))
 

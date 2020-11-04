@@ -24,13 +24,13 @@ logging.basicConfig(level=logging.DEBUG)
 # planner = Planner(logger=logging)
 # configurations = planner.plan(waypoints)
 
+theta2, theta3, rho, zee = symbols('theta2 theta3 rho zee')
+kinematics = Manipulator1()
+
 # visualize
-viz = CuspidalVisualizer()
+viz = CuspidalVisualizer(kinematics)
 viz.update()
 # viz.plot_waypoints(waypoints)
-
-theta2, theta3, rho, zee = symbols('theta2 theta3 rho zee')
-kinematics = OrthoManip1Kinematics()
 
 plot_detJ = plot_implicit(Eq(kinematics.determinant_jacobian(theta2, theta3), 0), x_var=(theta2, -pi, pi), y_var=(theta3, -pi, pi), show=False)
 viz.move_sympyplot_to_axes(plot_detJ, viz.ax3)
@@ -41,10 +41,27 @@ viz.move_sympyplot_to_axes(plot_discr, viz.ax2)
 # print(kinematics.origins([0, 0, 0]))
 # print(kinematics.forward_kinematics_2D([0, 0, 0]))
 
-# for i in range(20):
-#     joints = kinematics.random_valid_config()
-#     viz.update(joints)
-#     viz.pause(0.1)
+viz.pause(2)
+
+xee = 1.79
+yee = 1.75
+print("rho: {}".format(np.sqrt(xee**2 + yee**2)))
+zee = 0.5
+all_solns = kinematics.ik(xee, yee, zee)
+# for soln in all_solns:
+#     print(kinematics.origins(soln)[2, :])
+#     print(np.sqrt(kinematics.origins(soln)[2, 0]**2 + kinematics.origins(soln)[2, 1]**2))
+#     viz.update(soln)
+#     viz.pause(0.5)
+
+interpolated_angles = np.linspace(all_solns[1], all_solns[2], num=50)
+print(interpolated_angles)
+
+for i in range(len(interpolated_angles)):
+    # joints = kinematics.random_valid_config()
+    angles = interpolated_angles[i]
+    viz.update(angles)
+    viz.pause(0.1)
 
 done = input("enter when done: ")
 viz.shutdown()
