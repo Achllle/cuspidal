@@ -4,7 +4,7 @@ kinematics classes for 3 DOF robots
 @author: Achille
 """
 import numpy as np
-from numpy import cos, sin, arctan2, pi, arcsin, arccos
+from numpy import cos, sin, arctan2, pi, arcsin, arccos, sqrt, cbrt
 np.seterr(all='raise')  # raise error iso warning
 from random import randint
 from angles import normalize_angle
@@ -107,18 +107,18 @@ class OrthoManip3RKinematics(ThreeDOFKinematics):
     def quartic(cls, rho, zee):
         R = rho**2 + zee**2
         L = cls.a3**2 + cls.a2**2 + cls.d2**2
-        m0 = -R + zee**2 + cls.d2**2 + ((R+1-L)**2)/4
-        m1 = 2*cls.d2*cls.a3 + (L - R - 1)*cls.a3*cls.d2
-        m2 = (L - R - 1)*cls.a3*cls.a2
-        m3 = 2*cls.d2*cls.a2*cls.a3**2
-        m4 = cls.a3**2*(cls.d2**2 + 1)
+        m0 = -R + zee**2 + cls.d2**2 + ((R+1-L)**2) / 4
+        m1 = 2*cls.d2 * cls.a3 + (L - R - 1) * cls.a3 * cls.d2
+        m2 = (L - R - 1) * cls.a3 * cls.a2
+        m3 = 2*cls.d2 * cls.a2 * cls.a3**2
+        m4 = cls.a3**2 * (cls.d2**2 + 1)
         m5 = cls.a3**2 * cls.a2**2
 
-        a = m5-m2+m0
-        b = -2*m3+2*m1
-        c = -2*m5+4*m4+2*m0
-        d = 2*m3+2*m1
-        e = m5+m2+m0
+        a = m5 - m2 + m0
+        b = -2*m3 + 2*m1
+        c = -2*m5 + 4*m4 + 2*m0
+        d = 2*m3 + 2*m1
+        e = m5 + m2 + m0
 
         return a, b, c, d, e
 
@@ -158,6 +158,29 @@ class OrthoManip3RKinematics(ThreeDOFKinematics):
         rho = np.sqrt(xee**2 + yee**2)
 
         a, b, c, d, e = cls.quartic(rho, zee)
+        print(a, b, c, d, e)
+
+        ###################### OPTION 1 ########################
+        # fun1 = 2*c**3-9*b*c*d+27*a*d**2+27*b**2*e-72*a*c*e
+        # fun2 = (fun1)**2-4*(c**2-3*b*d+12*a*e)**3
+        # fun3 = 3*b**2-8*a*c+2*a
+
+        # s = -1
+        # t = -1
+        # t1 = (-3*b+s*(sqrt(3*(fun3*cbrt(4*(fun1+sqrt(fun2)))+2*a*cbrt(4*(fun1-sqrt(fun2)))))+t*sqrt(3*(fun3*(-1+sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1-sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))+t*sgn((sgn(-b**3+4*a*b*c-8*a**2*d)-1/2)*(sgn(max(fun2,min(3*b**2-8*a*c,3*b**4+16*a**2*c**2+16*a**2*b*d-16*a*b**2*c-64*a**3*e)))-1/2))*sqrt(3*(fun3*(-1-sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1+sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))/(12*a)
+        # s = 1
+        # t = -1
+        # t2 = (-3*b+s*(sqrt(3*(fun3*cbrt(4*(fun1+sqrt(fun2)))+2*a*cbrt(4*(fun1-sqrt(fun2)))))+t*sqrt(3*(fun3*(-1+sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1-sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))+t*sgn((sgn(-b**3+4*a*b*c-8*a**2*d)-1/2)*(sgn(max(fun2,min(3*b**2-8*a*c,3*b**4+16*a**2*c**2+16*a**2*b*d-16*a*b**2*c-64*a**3*e)))-1/2))*sqrt(3*(fun3*(-1-sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1+sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))/(12*a)
+        # s = 1
+        # t = 1
+        # t3 = (-3*b+s*(sqrt(3*(fun3*cbrt(4*(fun1+sqrt(fun2)))+2*a*cbrt(4*(fun1-sqrt(fun2)))))+t*sqrt(3*(fun3*(-1+sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1-sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))+t*sgn((sgn(-b**3+4*a*b*c-8*a**2*d)-1/2)*(sgn(max(fun2,min(3*b**2-8*a*c,3*b**4+16*a**2*c**2+16*a**2*b*d-16*a*b**2*c-64*a**3*e)))-1/2))*sqrt(3*(fun3*(-1-sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1+sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))/(12*a)
+        # s = -1
+        # t = 1
+        # t4 = (-3*b+s*(sqrt(3*(fun3*cbrt(4*(fun1+sqrt(fun2)))+2*a*cbrt(4*(fun1-sqrt(fun2)))))+t*sqrt(3*(fun3*(-1+sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1-sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))+t*sgn((sgn(-b**3+4*a*b*c-8*a**2*d)-1/2)*(sgn(max(fun2,min(3*b**2-8*a*c,3*b**4+16*a**2*c**2+16*a**2*b*d-16*a*b**2*c-64*a**3*e)))-1/2))*sqrt(3*(fun3*(-1-sqrt(-3))/2*cbrt(4*(fun1+sqrt(fun2)))+2*a*(-1+sqrt(-3))/2*cbrt(4*(fun1-sqrt(fun2))))))/(12*a)
+
+        ###################### OPTION 2 ########################
+        # equations from wikipedia
+        # results validated using numpy.roots and using a quartic calculator: http://www.1728.org/quartic.htm
 
         delta_0 = cls.delta_0(rho, zee)
         delta_1 = cls.delta_1(rho, zee)
@@ -170,31 +193,48 @@ class OrthoManip3RKinematics(ThreeDOFKinematics):
 
         discr = cls.quartic_discriminant(rho, zee)
         if discr < 0:
-            Q = np.cbrt((delta_1 + np.sqrt(delta_1**2 - 4*delta_0**3)) / 2)
+            Q = np.cbrt((delta_1 + np.sqrt(delta_1**2 - 4*delta_0**3)) / 2.)
             S = 0.5 * np.sqrt(-2./3*p + 1./(3*a) * (Q + delta_0/Q))
+            print("WARNING COMPLEX ROOTS, NOT IMPLEMENTED WITH THIS YET")
         elif discr > 0:
             phi = arccos(delta_1 / (2 * np.sqrt(delta_0**3)))
             S = 0.5 * np.sqrt(-2./3*p + 2./(3*a) * np.sqrt(delta_0) * cos(phi/3))
-            # S = 0.5 * np.sqrt(2*)
         else:
             raise NotImplementedError()
 
-        # try replacing these with Wolfram Alpha's roots 
-        # https://mathworld.wolfram.com/QuarticEquation.html 
         t1 = -b/(4*a) - S + 0.5*np.sqrt(-4*S**2 - 2*p + q/S)
         t2 = -b/(4*a) - S - 0.5*np.sqrt(-4*S**2 - 2*p + q/S)
         t3 = -b/(4*a) + S + 0.5*np.sqrt(-4*S**2 - 2*p - q/S)
         t4 = -b/(4*a) + S - 0.5*np.sqrt(-4*S**2 - 2*p - q/S)
+        print(t1, t2, t3, t4)
+
+        ###################### OPTION 3 ########################
+        # https://mathworld.wolfram.com/QuarticEquation.html
+
+        # a3 = b/a
+        # a2 = c/a
+        # a1 = d/a
+        # a0 = e/a
+
+        # R = sqrt(0.25*a3**2 - a2 + y1)
+
+        ###################### OPTION 4 ########################
+        # NUMERICAL APPROACH: NUMPY.ROOTS
+        # seems to be getting the same solution as OPTION2
+
+        # t1, t2, t3, t4 = np.roots([a, b, c, d, e])
+        # print(t1, t2, t3, t4)
+
 
         th3_1 = 2 * np.arctan(t1)
         th3_2 = 2 * np.arctan(t2)
         th3_3 = 2 * np.arctan(t3)
         th3_4 = 2 * np.arctan(t4)
 
-        th2_1 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_1)))
+        th2_1 = -(arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_1))) + pi)
         th2_2 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_2)))
         th2_3 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_3)))
-        th2_4 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_4)))
+        th2_4 = -(arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_4))) + pi)
 
         l1 = cls.a1 + cls.a3*cos(th3_1)*cos(th2_1) + cls.a2*cos(th2_1)
         l2 = cls.a1 + cls.a3*cos(th3_2)*cos(th2_2) + cls.a2*cos(th2_2)
@@ -215,15 +255,27 @@ class OrthoManip3RKinematics(ThreeDOFKinematics):
         # th1_3 = arcsin((l3*yee - m3*xee) / (l3**2 + m3**2))
         # th1_4 = arcsin((l4*yee - m4*xee) / (l4**2 + m4**2))
 
-        th1_1 = arctan2(l1*yee - m1*xee, l1*xee + m1*yee)
-        th1_2 = arctan2(l2*yee - m2*xee, l2*xee + m2*yee)
-        th1_3 = arctan2(l3*yee - m3*xee, l3*xee + m3*yee)
-        th1_4 = arctan2(l4*yee - m4*xee, l4*xee + m4*yee)
-
-        solns = [[th1_1, th2_1, th3_1],
-                 [th1_2, th2_2, th3_2],
-                 [th1_3, th2_3, th3_3],
-                 [th1_4, th2_4, th3_4]]
+        solns = []
+        try:
+            th1_1 = arctan2(l1*yee - m1*xee, l1*xee + m1*yee)
+            solns.append([th1_1, th2_1, th3_1])
+        except TypeError:
+            pass
+        try:
+            th1_2 = arctan2(l2*yee - m2*xee, l2*xee + m2*yee)
+            solns.append([th1_2, th2_2, th3_2])
+        except TypeError:
+            pass
+        try:
+            th1_3 = arctan2(l3*yee - m3*xee, l3*xee + m3*yee)
+            solns.append([th1_3, th2_3, th3_3])
+        except TypeError:
+            pass
+        try:
+            th1_4 = arctan2(l4*yee - m4*xee, l4*xee + m4*yee)
+            solns.append([th1_4, th2_4, th3_4])
+        except TypeError:
+            pass
 
         return solns
 
@@ -251,14 +303,14 @@ class Manipulator1(OrthoManip3RKinematics):
 class Manipulator2(OrthoManip3RKinematics):
     # DH parameters. All a's and alphas are zero.
     d1 = 0
-    d2 = 0.7
+    d2 = 1
     d3 = 0
     alpha1 = -pi/2
     alpha2 = pi/2
     alpha3 = 0
     a1 = 1.
     a2 = 1.5
-    a3 = 0.7
+    a3 = 1.0
 
 
 def minmax(val, tol = DEFAULT_SIN_COS_TOLERANCE, limit = 1):
@@ -274,12 +326,14 @@ def minmax(val, tol = DEFAULT_SIN_COS_TOLERANCE, limit = 1):
 
 
 if __name__ == '__main__':
-    solver = Manipulator1()
+    solver = Manipulator2()
     # random_valid_target = solver.random_valid_ee_pose()
-    xee = 1.79
-    yee = 1.75
+    xee = 1.3
+    yee = 1.25
     zee = 0.6
-    print("rho original: {}".format(np.sqrt(xee**2 + yee**2)))
+    rho = np.sqrt(xee**2 + yee**2)
+    print("rho original: {}".format(rho))
+    print("is cuspidal: {}".format(solver.is_cuspidal(rho, zee)))
 
     all_solns = solver.ik(xee, yee, zee)
     for soln in all_solns:
