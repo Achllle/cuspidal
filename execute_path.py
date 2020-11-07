@@ -46,9 +46,9 @@ viz.pause(2)
 # xee = 2.
 # yee = 2.1
 # zee = 0.65
-xee = 1.3
-yee = 1.25
-zee = 0.6
+xee = 1.2
+yee = 1.15
+zee = 0.45
 
 print("rho: {}".format(np.sqrt(xee**2 + yee**2)))
 all_solns = kinematics.ik(xee, yee, zee)
@@ -61,7 +61,7 @@ all_solns = kinematics.ik(xee, yee, zee)
 #     viz.pause(0.5)
 
 ## INTERPOLATE FROM ONE POSTURE TO ANOTHER
-interpolated_angles = np.linspace(all_solns[0], all_solns[1], num=50)
+interpolated_angles = np.linspace(all_solns[0], all_solns[2], num=50)
 print(interpolated_angles)
 
 for i in range(len(interpolated_angles)):

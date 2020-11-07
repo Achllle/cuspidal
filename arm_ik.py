@@ -202,6 +202,7 @@ class OrthoManip3RKinematics(ThreeDOFKinematics):
         else:
             raise NotImplementedError()
 
+        # try:
         t1 = -b/(4*a) - S + 0.5*np.sqrt(-4*S**2 - 2*p + q/S)
         t2 = -b/(4*a) - S - 0.5*np.sqrt(-4*S**2 - 2*p + q/S)
         t3 = -b/(4*a) + S + 0.5*np.sqrt(-4*S**2 - 2*p - q/S)
@@ -303,7 +304,7 @@ class Manipulator1(OrthoManip3RKinematics):
 class Manipulator2(OrthoManip3RKinematics):
     # DH parameters. All a's and alphas are zero.
     d1 = 0
-    d2 = 1
+    d2 = 0.7
     d3 = 0
     alpha1 = -pi/2
     alpha2 = pi/2
@@ -328,9 +329,9 @@ def minmax(val, tol = DEFAULT_SIN_COS_TOLERANCE, limit = 1):
 if __name__ == '__main__':
     solver = Manipulator2()
     # random_valid_target = solver.random_valid_ee_pose()
-    xee = 1.3
+    xee = 1.25
     yee = 1.25
-    zee = 0.6
+    zee = 0.45
     rho = np.sqrt(xee**2 + yee**2)
     print("rho original: {}".format(rho))
     print("is cuspidal: {}".format(solver.is_cuspidal(rho, zee)))
