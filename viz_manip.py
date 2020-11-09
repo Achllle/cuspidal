@@ -8,43 +8,72 @@ from sympy.plotting import plot_implicit
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
+plt.style.use('seaborn-dark')
+
 
 class CuspidalVisualizer:
 
     def __init__(self, kinematics_model):
         plt.ion()
         self.fig = plt.figure()
+        self.color1 = 'black'
+        self.color2 = 'deepskyblue'
+        self.color3 = 'chartreuse'
+        self.fig.patch.set_facecolor(self.color1)
         self.ax = self.fig.add_subplot(131, projection='3d')
         self.ax2 = self.fig.add_subplot(132)
         self.ax3 = self.fig.add_subplot(133)
-        plt.show()
-        # self.ax.set_autoscale_on(False)
-        # self.ax.set_xlim3d((-1, 2))
-        # self.ax.set_ylim3d((-1, 2))
-        # self.ax.set_zlim3d((0, 2))
+
+        self.ax.set_autoscale_on(False)
+        self.ax.set_xlim3d((0, 2.5))
+        self.ax.set_ylim3d((-1.3, 1.3))
+        self.ax.set_zlim3d((0, 1))
         self.ax.set_aspect('auto')
+        self.ax.set_facecolor(self.color1)
+        self.ax2.set_facecolor(self.color1)
+        self.ax3.set_facecolor(self.color1)
+
+        plt.tight_layout()
+        plt.show()
+
         self.kinematics = kinematics_model
         self.joint_angles = np.zeros(3)
         self.plotted_lines = []
         self.skip = 0
+        self.angle = -10
         # self.update()
 
     def update(self, joint_angles=np.zeros(3)):
         """Show the robot in the given state"""
-        o1_3 = self.kinematics.origins(joint_angles)
-        origins = np.vstack((np.array([0, 0, 0]), o1_3))
+        origins = self.kinematics.origins_viz(joint_angles)
         try:
             if self.skip > 50:
-                self.ax.lines.pop(-1)
+                self.ax.lines.pop(0)
             else:
                 self.skip += 1
         except IndexError: pass
-        self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], color='r'))
+        if self.skip <= 2:
+            self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], '-o', color=self.color2, linewidth=6, markersize=12))
+        elif self.skip > 2:
+            # color the previous line in a different color
+            for line in self.plotted_lines[-1]:
+                line.set_color('lightskyblue')
+                line.set_alpha(0.4)
+                line.set_linewidth(3)
+                line.set_markersize(6)
+            self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], '-o', color=self.color2, linewidth=6, markersize=12))
+
+        # set the ee color
+        self.ax.plot(origins[-1, 0], origins[-1, 1], origins[-1, 2], 'o', color=self.color3, markersize=5)
 
         # show where the robot is on the other plots
         rho, zee = self.kinematics.forward_kinematics_2D(joint_angles)
-        self.ax2.plot([rho], [zee], marker='o', markersize=3, color='red')
-        self.ax3.plot([joint_angles[1]], [joint_angles[2]], marker='o', markersize=3, color='red')
+        self.ax2.plot([rho], [zee], marker='x', markersize=10, color=self.color3)
+        self.ax3.plot([joint_angles[1]], [joint_angles[2]], marker='x', markersize=10, color=self.color3)
+
+        # rotate robot view
+        self.angle -= 0.5
+        self.ax.view_init(30, self.angle)
 
         self.fig.canvas.draw()
         plt.pause(0.001)  # tiny delay to allow for visualizing
