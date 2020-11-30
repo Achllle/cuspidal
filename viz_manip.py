@@ -4,6 +4,7 @@ Methods for visualizing the a robot arm and trajectories
 @author: Achille
 """
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 from sympy.plotting import plot_implicit
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
@@ -20,9 +21,11 @@ class CuspidalVisualizer:
         self.color2 = 'deepskyblue'
         self.color3 = 'chartreuse'
         self.fig.patch.set_facecolor(self.color1)
-        self.ax = self.fig.add_subplot(131, projection='3d')
-        self.ax2 = self.fig.add_subplot(132)
-        self.ax3 = self.fig.add_subplot(133)
+        gs = gridspec.GridSpec(1, 3, width_ratios = [3, 1, 1]) 
+
+        self.ax = plt.subplot(gs[0], projection='3d')
+        self.ax2 = plt.subplot(gs[1])
+        self.ax3 = plt.subplot(gs[2])
 
         self.ax.set_autoscale_on(False)
         self.ax.set_xlim3d((0, 2.5))
@@ -40,7 +43,7 @@ class CuspidalVisualizer:
         self.joint_angles = np.zeros(3)
         self.plotted_lines = []
         self.skip = 0
-        self.angle = -10
+        self.angle = -170
         # self.update()
 
     def update(self, joint_angles=np.zeros(3)):
@@ -72,8 +75,8 @@ class CuspidalVisualizer:
         self.ax3.plot([joint_angles[1]], [joint_angles[2]], marker='x', markersize=10, color=self.color3)
 
         # rotate robot view
-        self.angle -= 0.5
-        self.ax.view_init(30, self.angle)
+        self.angle -= 0.2
+        self.ax.view_init(40, self.angle)
 
         self.fig.canvas.draw()
         plt.pause(0.001)  # tiny delay to allow for visualizing
