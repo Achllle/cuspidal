@@ -224,39 +224,113 @@ class OrthoManip3RKinematics(ThreeDOFKinematics):
         solns = []
         try:
             t1 = -b/(4*a) - S + 0.5*np.sqrt(-4*S**2 - 2*p + q/S)
-            th3_1 = 2 * np.arctan(t1)
-            th2_1 = -(arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_1))) + pi)
+            sinth3_1 = 2*t1/(1+t1**2)
+            costh3_1 = (1-t1**2)/(1+t1**2)
+            th3_1 = np.arctan2(sinth3_1, costh3_1)
+            # th3_1 = 2 * np.arctan2(t1, 1)
+            th2_1 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_1)))
             l1 = cls.a1 + cls.a3*cos(th3_1)*cos(th2_1) + cls.a2*cos(th2_1)
             m1 = cls.d2 + cls.a3*sin(th3_1)
             th1_1 = arctan2(l1*yee - m1*xee, l1*xee + m1*yee)
-            solns.append([th1_1, th2_1, th3_1])
+
+            # check that it matches FK
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_1, th2_1, th3_1])
+            if not np.isclose(rho_fk, rho, rtol=1e-02):
+                print("soln1 using alternative")
+                th2_1 = -arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_1))) - pi
+                l1 = cls.a1 + cls.a3*cos(th3_1)*cos(th2_1) + cls.a2*cos(th2_1)
+                m1 = cls.d2 + cls.a3*sin(th3_1)
+                th1_1 = arctan2(l1*yee - m1*xee, l1*xee + m1*yee)
+
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_1, th2_1, th3_1])
+            if np.isclose(rho_fk, rho, rtol=1e-02):
+                solns.append([th1_1, th2_1, th3_1])
+                print("soln1 found")
+            else:
+                print("BROKEN IK for soln1: rho: {}".format(rho_fk))
         except FloatingPointError: pass
         try:
             t2 = -b/(4*a) - S - 0.5*np.sqrt(-4*S**2 - 2*p + q/S)
-            th3_2 = 2 * np.arctan(t2)
+            sinth3_2 = 2*t2/(1+t2**2)
+            costh3_2 = (1-t2**2)/(1+t2**2)
+            th3_2 = np.arctan2(sinth3_2, costh3_2)
+            # th3_2 = 2 * np.arctan2(t2, 1)
+            print("soln2 : t2: {}, th3: {}".format(t2, th3_2))
             th2_2 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_2)))
             l2 = cls.a1 + cls.a3*cos(th3_2)*cos(th2_2) + cls.a2*cos(th2_2)
             m2 = cls.d2 + cls.a3*sin(th3_2)
             th1_2 = arctan2(l2*yee - m2*xee, l2*xee + m2*yee)
-            solns.append([th1_2, th2_2, th3_2])
+            
+            # check that it matches FK
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_2, th2_2, th3_2])
+            if not np.isclose(rho_fk, rho, rtol=1e-02):
+                print("soln2 using alternative")
+                th2_2 = -arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_2))) - pi
+                l2 = cls.a1 + cls.a3*cos(th3_2)*cos(th2_2) + cls.a2*cos(th2_2)
+                m2 = cls.d2 + cls.a3*sin(th3_2)
+                th1_2 = arctan2(l2*yee - m2*xee, l2*xee + m2*yee)
+
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_2, th2_2, th3_2])
+            if np.isclose(rho_fk, rho, rtol=1e-02):
+                solns.append([th1_2, th2_2, th3_2])
+                print("soln2 found")
+            else:
+                print("BROKEN IK for soln2: rho: {}".format(rho_fk))
         except FloatingPointError: pass
         try:
             t3 = -b/(4*a) + S + 0.5*np.sqrt(-4*S**2 - 2*p - q/S)
-            th3_3 = 2 * np.arctan(t3)
+            sinth3_3 = 2*t3/(1+t3**2)
+            costh3_3 = (1-t3**2)/(1+t3**2)
+            th3_3 = np.arctan2(sinth3_3, costh3_3)
+            # th3_3 = 2 * np.arctan2(t3, 1)
             th2_3 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_3)))
             l3 = cls.a1 + cls.a3*cos(th3_3)*cos(th2_3) + cls.a2*cos(th2_3)
             m3 = cls.d2 + cls.a3*sin(th3_3)
             th1_3 = arctan2(l3*yee - m3*xee, l3*xee + m3*yee)
-            solns.append([th1_3, th2_3, th3_3])
+
+            # check that it matches FK
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_3, th2_3, th3_3])
+            if not np.isclose(rho_fk, rho, rtol=1e-02):
+                print("soln3 using alternative")
+                th2_3 = -arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_3))) - pi
+                l3 = cls.a1 + cls.a3*cos(th3_3)*cos(th2_3) + cls.a2*cos(th2_3)
+                m3 = cls.d2 + cls.a3*sin(th3_3)
+                th1_3 = arctan2(l3*yee - m3*xee, l3*xee + m3*yee)
+
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_3, th2_3, th3_3])
+            if np.isclose(rho_fk, rho, rtol=1e-02):
+                solns.append([th1_3, th2_3, th3_3])
+                print("soln3 found")
+            else:
+                print("BROKEN IK for soln3: rho: {}".format(rho_fk))
         except FloatingPointError: pass
         try:
             t4 = -b/(4*a) + S - 0.5*np.sqrt(-4*S**2 - 2*p - q/S)
-            th3_4 = 2 * np.arctan(t4)
-            th2_4 = -(arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_4))) + pi)
+            sinth3_4 = 2*t4/(1+t4**2)
+            costh3_4 = (1-t4**2)/(1+t4**2)
+            th3_4 = np.arctan2(sinth3_4, costh3_4)
+            # th3_4 = 2 * np.arctan2(t4, 1)
+            print("soln4 : t4: {}, th3: {}".format(t4, th3_4))
+            th2_4 = arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_4)))
             l4 = cls.a1 + cls.a3*cos(th3_4)*cos(th2_4) + cls.a2*cos(th2_4)
             m4 = cls.d2 + cls.a3*sin(th3_4)
             th1_4 = arctan2(l4*yee - m4*xee, l4*xee + m4*yee)
-            solns.append([th1_4, th2_4, th3_4])
+
+            # check that it matches FK
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_4, th2_4, th3_4])
+            if not np.isclose(rho_fk, rho, rtol=1e-02):
+                print("soln4 using alternative")
+                th2_4 = -arcsin(-zee / (cls.a2 + cls.a3 * cos(th3_4))) - pi
+                l4 = cls.a1 + cls.a3*cos(th3_4)*cos(th2_4) + cls.a2*cos(th2_4)
+                m4 = cls.d2 + cls.a3*sin(th3_4)
+                th1_4 = arctan2(l4*yee - m4*xee, l4*xee + m4*yee)
+
+            rho_fk, z_fk = cls.forward_kinematics_2D([th1_4, th2_4, th3_4])
+            if np.isclose(rho_fk, rho, rtol=1e-02):
+                solns.append([th1_4, th2_4, th3_4])
+                print("soln4 found")
+            else:
+                print("BROKEN IK for soln4: rho: {}".format(rho_fk))
         except FloatingPointError: pass
 
         ###################### OPTION 3 ########################
@@ -322,6 +396,18 @@ class Manipulator2(OrthoManip3RKinematics):
     a2 = 1.5
     a3 = 1.0
 
+class NonCuspidal(OrthoManip3RKinematics):
+    # DH parameters. All a's and alphas are zero.
+    d1 = 0
+    d2 = 0.7
+    d3 = 0
+    alpha1 = -pi/2
+    alpha2 = pi/2
+    alpha3 = 0
+    a1 = 1.
+    a2 = 1.5
+    a3 = 0.1
+
 
 def minmax(val, tol = DEFAULT_SIN_COS_TOLERANCE, limit = 1):
     """
@@ -336,11 +422,11 @@ def minmax(val, tol = DEFAULT_SIN_COS_TOLERANCE, limit = 1):
 
 
 if __name__ == '__main__':
-    solver = Manipulator2()
+    solver = NonCuspidal()
     # random_valid_target = solver.random_valid_ee_pose()
-    xee = 1.25
-    yee = 1.25
-    zee = 0.45
+    xee = 0.2
+    yee = 1.0
+    zee = 0.5
     rho = np.sqrt(xee**2 + yee**2)
     print("rho original: {}".format(rho))
     print("is cuspidal: {}".format(solver.is_cuspidal(rho, zee)))
