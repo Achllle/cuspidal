@@ -31,6 +31,7 @@ class CuspidalVisualizer:
         self.axis_color = 'white'
         self.fig.patch.set_facecolor(self.color1)
         gs = gridspec.GridSpec(1, 3, width_ratios = [3, 2, 2]) 
+        gs.update(wspace=0.1, hspace=0.05) # set the spacing between axes. 
 
         self.ax = plt.subplot(gs[0], projection='3d')
         self.ax2 = plt.subplot(gs[1])
@@ -56,14 +57,14 @@ class CuspidalVisualizer:
         self.ax2.tick_params(colors=self.axis_color)
         self.ax3.tick_params(colors=self.axis_color)
 
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.show()
 
         self.kinematics = kinematics_model
         self.joint_angles = np.zeros(3)
         self.plotted_lines = []
         self.skip = 0
-        self.angle = -170
+        self.angle = -165
         # self.update()
 
     def update(self, joint_angles=np.zeros(3)):
