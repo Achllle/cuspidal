@@ -46,17 +46,15 @@ viz.move_sympyplot_to_axes(plot_discr, viz.ax2)
 # print(kinematics.origins([0, 0, 0]))
 # print(kinematics.forward_kinematics_2D([0, 0, 0]))
 
-viz.pause(1)
+viz.pause(2)
 
-
-xee = 1.35
+xee = 1.2
 yee = 1.
 zee = 0.5
 
-print("rho: {}".format(np.sqrt(xee**2 + yee**2)))
-# all_solns = kinematics.ik(xee, yee, zee)
 
 ## SHOW ALL SOLUTIONS
+# all_solns = kinematics.ik(xee, yee, zee)
 # for soln in all_solns:
 #     print(kinematics.origins(soln)[2, :])
 #     print(np.sqrt(kinematics.origins(soln)[2, 0]**2 + kinematics.origins(soln)[2, 1]**2))
@@ -65,8 +63,11 @@ print("rho: {}".format(np.sqrt(xee**2 + yee**2)))
 #####################
 
 ## INTERPOLATE FROM ONE POSTURE TO ANOTHER
-# interpolated_angles = np.linspace(all_solns[2], all_solns[3], num=40)
+# all_solns = kinematics.ik(xee, yee, zee)
+# interpolated_angles = np.linspace(all_solns[0], all_solns[2], num=40)
 # print(interpolated_angles)
+
+# viz.pause(2)
 
 # for i in range(len(interpolated_angles)):
 #     joints = kinematics.random_valid_config()
@@ -76,16 +77,20 @@ print("rho: {}".format(np.sqrt(xee**2 + yee**2)))
 
 ## INTERPOLATE TWO WORKSPACE PATHS TO SHOW JOINT JUMPS
 x_s = 2.45
-y_s = 1.
-z_s = 0.5
-x_e = 1.3
-y_e = 1.
-z_e = 0.5
+y_s = 0.7
+z_s = 0.2
+x_e = 0.3
+y_e = 0.7
+z_e = 0.2
+
+
 interp_rhozee = np.linspace(np.array([x_s, y_s, z_s]), np.array([x_e, y_e, z_e]), num=40)
 
 all_solns = kinematics.ik(x_s, y_s, z_s)
 configs = [all_solns[0]]
 norms = []
+
+viz.pause(2)
 
 for x, y, z in interp_rhozee:
     postures = kinematics.ik(x, y, z)
@@ -103,7 +108,7 @@ for x, y, z in interp_rhozee:
 
 for config in configs:
     viz.update(config)
-    viz.pause(0.05)
+    viz.pause(0.15)
 
 ######################################################
 
