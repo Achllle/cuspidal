@@ -11,6 +11,14 @@ import numpy as np
 
 plt.style.use('seaborn-dark')
 
+import matplotlib.pylab as pylab
+params = {'legend.fontsize': 'x-large',
+         'axes.labelsize': 'large',
+         'axes.titlesize':'x-large',
+         'xtick.labelsize':'x-large',
+         'ytick.labelsize':'x-large'}
+pylab.rcParams.update(params)
+
 
 class CuspidalVisualizer:
 
@@ -20,8 +28,9 @@ class CuspidalVisualizer:
         self.color1 = 'black'
         self.color2 = 'deepskyblue'
         self.color3 = 'chartreuse'
+        self.axis_color = 'white'
         self.fig.patch.set_facecolor(self.color1)
-        gs = gridspec.GridSpec(1, 3, width_ratios = [3, 1, 1]) 
+        gs = gridspec.GridSpec(1, 3, width_ratios = [3, 2, 2]) 
 
         self.ax = plt.subplot(gs[0], projection='3d')
         self.ax2 = plt.subplot(gs[1])
@@ -35,6 +44,17 @@ class CuspidalVisualizer:
         self.ax.set_facecolor(self.color1)
         self.ax2.set_facecolor(self.color1)
         self.ax3.set_facecolor(self.color1)
+        self.ax2.yaxis.label.set_color(self.axis_color)
+        self.ax3.yaxis.label.set_color(self.axis_color)
+        self.ax2.xaxis.label.set_color(self.axis_color)
+        self.ax3.xaxis.label.set_color(self.axis_color)
+
+        self.ax2.spines['bottom'].set_color(self.axis_color)
+        self.ax3.spines['bottom'].set_color(self.axis_color)
+        self.ax2.spines['bottom'].set_color(self.axis_color)
+        self.ax3.spines['left'].set_color(self.axis_color)
+        self.ax2.tick_params(colors=self.axis_color)
+        self.ax3.tick_params(colors=self.axis_color)
 
         plt.tight_layout()
         plt.show()
