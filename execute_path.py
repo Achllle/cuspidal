@@ -18,12 +18,6 @@ from numpy import pi
 
 logging.basicConfig(level=logging.DEBUG)
 
-# create the path
-# waypoints = load_default()
-
-# planner = Planner(logger=logging)
-# configurations = planner.plan(waypoints)
-
 theta2, theta3, rho, zee = symbols('theta2 theta3 rho zee')
 kinematics = Manipulator2()
 
@@ -53,6 +47,10 @@ yee = 1.
 zee = 0.5
 
 
+## SHOW SOME POSTURE
+# viz.update(joint_angles=np.array([0, -pi/2, 0]))
+#####################
+
 ## SHOW ALL SOLUTIONS
 # all_solns = kinematics.ik(xee, yee, zee)
 # for soln in all_solns:
@@ -63,52 +61,52 @@ zee = 0.5
 #####################
 
 ## INTERPOLATE FROM ONE POSTURE TO ANOTHER
-# all_solns = kinematics.ik(xee, yee, zee)
-# interpolated_angles = np.linspace(all_solns[0], all_solns[2], num=40)
-# print(interpolated_angles)
-
-# viz.pause(2)
-
-# for i in range(len(interpolated_angles)):
-#     joints = kinematics.random_valid_config()
-#     angles = interpolated_angles[i]
-#     viz.update(angles)
-#####################
-
-## INTERPOLATE TWO WORKSPACE PATHS TO SHOW JOINT JUMPS
-x_s = 2.45
-y_s = 0.7
-z_s = 0.2
-x_e = 0.3
-y_e = 0.7
-z_e = 0.2
-
-
-interp_rhozee = np.linspace(np.array([x_s, y_s, z_s]), np.array([x_e, y_e, z_e]), num=40)
-
-all_solns = kinematics.ik(x_s, y_s, z_s)
-configs = [all_solns[0]]
-norms = []
+all_solns = kinematics.ik(xee, yee, zee)
+interpolated_angles = np.linspace(all_solns[0], all_solns[2], num=40)
+print(interpolated_angles)
 
 viz.pause(2)
 
-for x, y, z in interp_rhozee:
-    postures = kinematics.ik(x, y, z)
-    print("number of postures found: {}".format(len(postures)))
-    # pick the closest config
-    best_norm = np.inf
-    best_config = None
-    for posture in postures:
-        norm = sum(np.linalg.norm(np.vstack((configs[-1], posture)), axis=0))
-        if norm < best_norm:
-            best_norm = norm
-            best_config = posture
-    configs.append(best_config)
-    norms.append(best_norm)
+for i in range(len(interpolated_angles)):
+    joints = kinematics.random_valid_config()
+    angles = interpolated_angles[i]
+    viz.update(angles)
+#####################
 
-for config in configs:
-    viz.update(config)
-    viz.pause(0.15)
+## INTERPOLATE TWO WORKSPACE PATHS TO SHOW JOINT JUMPS
+# x_s = 2.45
+# y_s = 0.7
+# z_s = 0.2
+# x_e = 0.3
+# y_e = 0.7
+# z_e = 0.2
+
+
+# interp_rhozee = np.linspace(np.array([x_s, y_s, z_s]), np.array([x_e, y_e, z_e]), num=40)
+
+# all_solns = kinematics.ik(x_s, y_s, z_s)
+# configs = [all_solns[0]]
+# norms = []
+
+# viz.pause(2)
+
+# for x, y, z in interp_rhozee:
+#     postures = kinematics.ik(x, y, z)
+#     print("number of postures found: {}".format(len(postures)))
+#     # pick the closest config
+#     best_norm = np.inf
+#     best_config = None
+#     for posture in postures:
+#         norm = sum(np.linalg.norm(np.vstack((configs[-1], posture)), axis=0))
+#         if norm < best_norm:
+#             best_norm = norm
+#             best_config = posture
+#     configs.append(best_config)
+#     norms.append(best_norm)
+
+# for config in configs:
+#     viz.update(config)
+#     viz.pause(0.15)
 
 ######################################################
 
