@@ -27,20 +27,20 @@ viz = CuspidalVisualizer(kinematics)
 # viz.plot_waypoints(waypoints)
 
 color = 'snow'
-plot_detJ = plot_implicit(Eq(kinematics.determinant_jacobian(theta2, theta3), 0), 
-                          x_var=(theta2, -pi, pi), y_var=(theta3, -pi, pi), 
-                          line_color=color ,show=False)
-viz.move_sympyplot_to_axes(plot_detJ, viz.ax3)
+# plot_detJ = plot_implicit(Eq(kinematics.determinant_jacobian(theta2, theta3), 0), 
+#                           x_var=(theta2, -pi, pi), y_var=(theta3, -pi, pi), 
+#                           line_color=color ,show=False)
+# viz.move_sympyplot_to_axes(plot_detJ, viz.ax3)
 
-plot_discr = plot_implicit(Eq(kinematics.quartic_discriminant(rho, zee), 0), 
-                           x_var=(rho, 0, 3.8), y_var=(zee, -2.8, 2.8), 
-                           line_color=color, show=False, adaptive=False, points=800)
-viz.move_sympyplot_to_axes(plot_discr, viz.ax2)
+# plot_discr = plot_implicit(Eq(kinematics.quartic_discriminant(rho, zee), 0), 
+#                            x_var=(rho, 0, 3.8), y_var=(zee, -2.8, 2.8), 
+#                            line_color=color, show=False, adaptive=False, points=800)
+# viz.move_sympyplot_to_axes(plot_discr, viz.ax2)
 
 # print(kinematics.origins([0, 0, 0]))
 # print(kinematics.forward_kinematics_2D([0, 0, 0]))
 
-viz.pause(2)
+# viz.pause(2)
 
 xee = 1.2
 yee = 1.
@@ -65,7 +65,7 @@ all_solns = kinematics.ik(xee, yee, zee)
 interpolated_angles = np.linspace(all_solns[0], all_solns[2], num=40)
 print(interpolated_angles)
 
-viz.pause(2)
+# viz.pause(2)
 
 for i in range(len(interpolated_angles)):
     joints = kinematics.random_valid_config()
