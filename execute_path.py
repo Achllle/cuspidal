@@ -104,7 +104,6 @@ for x, y, z in interp_rhozee:
     norms.append(best_norm)
 
 for config in configs:
-    print("updating viz")
     viz.update(config)
     viz.pause(0.15)
 
