@@ -27,6 +27,7 @@ pylab.rcParams.update(params)
 class CuspidalVisualizer:
 
     def __init__(self, kinematics_model, enable_3d=True):
+        # TODO subclass 2D vs 3D visualizer, allow script to execute either or both cleanly
         self.kinematics = kinematics_model
         self.enable_3d = enable_3d
 
@@ -78,7 +79,7 @@ class CuspidalVisualizer:
             module_manager.scalar_lut_manager.lut_mode = 'summer'
             self.mfig = mlab.gcf()
             # mlab.show()
-
+            GUI().process_events()
 
         self.ax.set_autoscale_on(False)
         self.ax.set_xlim3d(ax1_xr)
@@ -104,7 +105,7 @@ class CuspidalVisualizer:
         self.ax2.tick_params(colors=self.axis_color)
         self.ax3.tick_params(colors=self.axis_color)
 
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.show()
 
         self.joint_angles = np.zeros(3)
@@ -126,21 +127,23 @@ class CuspidalVisualizer:
 
         if self.skip <= 2:
             self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], '-o', color=self.color2, linewidth=5, markersize=8, alpha=1.0))
-            # mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig)
-            # mlab.points3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig, scale_factor=0.1)
+            if self.enable_3d:
+                mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig)
+                mlab.points3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig, scale_factor=0.1)
         # self.plotted_lines.append(mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig))
         elif self.skip > 2:
             # color the previous line in a different color
-            # last_point = self.engine.scenes[0].children[-1].children[0].children[0]
-            # last_line = self.engine.scenes[0].children[-2].children[0].children[0].children[0].children[0]
-            # last_line.actor.property.opacity = 0.15
-            # last_point.actor.property.opacity = 0.15
-                # line.set_color('lightskyblue')
-                # line.set_alpha(0.4)
-            #     line.set_linewidth(3)
-            #     line.set_markersize(6)
-            # mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig)
-            # mlab.points3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig, scale_factor=0.1)
+            if self.enable_3d:
+                last_point = self.engine.scenes[0].children[-1].children[0].children[0]
+                last_line = self.engine.scenes[0].children[-2].children[0].children[0].children[0].children[0]
+                last_line.actor.property.opacity = 0.15
+                last_point.actor.property.opacity = 0.15
+                    # line.set_color('lightskyblue')
+                    # line.set_alpha(0.4)
+                #     line.set_linewidth(3)
+                #     line.set_markersize(6)
+                mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig)
+                mlab.points3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig, scale_factor=0.1)
             for prev_lines in self.plotted_lines[-min(5, len(self.plotted_lines)):]:
                 for link in prev_lines:
                     link.set_alpha(max(0, link.get_alpha() - 0.15))
@@ -159,10 +162,11 @@ class CuspidalVisualizer:
         self.angle -= 0.2
         self.ax.view_init(8, self.angle)
 
-        # GUI().process_events()
+        # if self.enable_3d:
+            # GUI().process_events()
         # arr = mlab.screenshot()
         # self.ax.imshow(arr)
-        self.fig.canvas.draw()
+        # self.fig.canvas.draw()
         # mlab.draw(figure=self.mfig)
         plt.pause(0.001)  # tiny delay to allow for visualizing
 

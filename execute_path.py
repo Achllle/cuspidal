@@ -22,7 +22,7 @@ theta2, theta3, rho, zee = symbols('theta2 theta3 rho zee')
 kinematics = Manipulator2()
 
 # visualize
-viz = CuspidalVisualizer(kinematics, enable_3d=False)
+viz = CuspidalVisualizer(kinematics, enable_3d=True)
 # viz.update()
 
 color = 'snow'
