@@ -11,6 +11,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from skimage import measure
 from mayavi import mlab
+from mayavi.api import Engine
 from pyface.api import GUI
 
 
@@ -32,18 +33,16 @@ class CuspidalVisualizer:
         self.enable_3d = enable_3d
 
         if self.enable_3d:
-            try:
-                self.engine = mayavi.engine
-            except NameError:
-                from mayavi.api import Engine
-                self.engine = Engine()
-                self.engine.start()
+            self.engine = Engine()
+            self.engine.start()
 
         plt.ion()
         self.fig = plt.figure(figsize=(18,10))
         self.color1 = 'black'
         self.color2 = 'deepskyblue'
         self.color3 = 'chartreuse'
+        # self.link_colors = ['red', 'blue', 'yellow', 'green', 'orange']
+        self.link_colors = [(1, 0, 0), (1, 0, 0.5), (1, 0, 1), (0.5, 0, 1), (0, 0, 1)]
         self.axis_color = 'white'
         self.fig.patch.set_facecolor(self.color1)
         gs = gridspec.GridSpec(1, 3, width_ratios = [3, 1, 1]) 
@@ -105,50 +104,56 @@ class CuspidalVisualizer:
         self.ax2.tick_params(colors=self.axis_color)
         self.ax3.tick_params(colors=self.axis_color)
 
-        # plt.tight_layout()
         plt.show()
 
         self.joint_angles = np.zeros(3)
         self.plotted_lines = []
-        self.skip = 0
+        self.nb_updates = 0
+        self.index_mayvi_events = 1
         self.angle = -190
         self.ax.view_init(8, self.angle)
-        # self.update()
 
     def update(self, joint_angles=np.zeros(3)):
         """Show the robot in the given state"""
         origins = self.kinematics.origins_viz(joint_angles)
         try:
-            if self.skip > 50:
+            if self.nb_updates > 50:
                 self.ax.lines.pop(0)
             else:
-                self.skip += 1
+                self.nb_updates += 1
         except IndexError: pass
 
-        if self.skip <= 2:
-            self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], '-o', color=self.color2, linewidth=5, markersize=8, alpha=1.0))
+        if self.nb_updates > 2:
+
             if self.enable_3d:
-                mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig)
-                mlab.points3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig, scale_factor=0.1)
-        # self.plotted_lines.append(mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig))
-        elif self.skip > 2:
-            # color the previous line in a different color
-            if self.enable_3d:
-                last_point = self.engine.scenes[0].children[-1].children[0].children[0]
-                last_line = self.engine.scenes[0].children[-2].children[0].children[0].children[0].children[0]
-                last_line.actor.property.opacity = 0.15
-                last_point.actor.property.opacity = 0.15
-                    # line.set_color('lightskyblue')
-                    # line.set_alpha(0.4)
-                #     line.set_linewidth(3)
-                #     line.set_markersize(6)
-                mlab.plot3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig)
-                mlab.points3d(origins[:, 0], origins[:, 1], origins[:, 2], figure=self.mfig, scale_factor=0.1)
-            for prev_lines in self.plotted_lines[-min(5, len(self.plotted_lines)):]:
+                # set opacity of previously generated robot. The indexing depends on the number of generated scenes in Mayavi, see comments
+                # each robot has 4 links (4 scenes total) and 5 joints (2 scenes total since the end effector is plotted separately)
+                scene_items = self.engine.scenes[0].children
+                last_ee_point = scene_items[-1].children[0].children[0]
+                last_points = scene_items[-2].children[0].children[0]
+                last_ee_point.actor.property.opacity = 0.3
+                last_points.actor.property.opacity = 0.2
+                for line in scene_items[-(len(origins)-1)-2:-2]:
+                    line.children[0].children[0].children[0].children[0].actor.property.opacity = 0.1
+
+            # fade $skip_amount most recent lines, don't touch older lines as they've been faded enough
+            for prev_lines in self.plotted_lines[-2:-1]:
                 for link in prev_lines:
-                    link.set_alpha(max(0, link.get_alpha() - 0.15))
-                    link.set_linewidth(1)
-            self.plotted_lines.append(self.ax.plot(origins[:, 0], origins[:, 1], origins[:, 2], '-o', color=self.color2, linewidth=2, markersize=8, alpha=1.0))
+                    link.set_alpha(max(0, link.get_alpha() * 0.8))
+                    link.set_linewidth(link.get_linewidth() * 0.9)  # fade by factor 10% each time
+
+        for joint in range(1, len(origins)):
+            lines = self.ax.plot3D(origins[joint-1:joint+1, 0], origins[joint-1:joint+1, 1], origins[joint-1:joint+1, 2], '-o', linewidth=2*(len(origins) - joint), markersize=10, alpha=1.0, c=self.link_colors[joint-1])
+            self.plotted_lines.append(lines)
+
+            if self.enable_3d:
+                # one mayavi scene for each call
+                mlab.plot3d(origins[joint-1:joint+1, 0], origins[joint-1:joint+1, 1], origins[joint-1:joint+1, 2], figure=self.mfig, color=self.link_colors[joint-1])
+
+        if self.enable_3d:
+            # generates one scene for each call
+            mlab.points3d(origins[:-1, 0], origins[:-1, 1], origins[:-1, 2], figure=self.mfig, scale_factor=0.1, opacity=0.8)
+            mlab.points3d(origins[-1, 0], origins[-1, 1], origins[-1, 2], figure=self.mfig, scale_factor=0.15, color=(1,0.3,0), opacity=0.7)
 
         # set the ee color
         self.ax.plot(origins[-1, 0], origins[-1, 1], origins[-1, 2], 'o', color=self.color3, markersize=5)
