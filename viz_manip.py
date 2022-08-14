@@ -13,9 +13,10 @@ from skimage import measure
 from mayavi import mlab
 from mayavi.api import Engine
 from pyface.api import GUI
-
+import logging
 
 plt.style.use('seaborn-dark')
+logging.getLogger('matplotlib.font_manager').disabled = True
 
 params = {'legend.fontsize': 'x-large',
          'axes.labelsize': 'large',
