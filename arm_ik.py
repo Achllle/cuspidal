@@ -421,6 +421,18 @@ class NonCuspidal2(OrthoManip3RKinematics):
     a2 = 1.
     a3 = 0.6
 
+class NonCuspidal3(OrthoManip3RKinematics):
+    # DH parameters. All a's and alphas are zero.
+    d1 = 0
+    d2 = 0.3
+    d3 = 0
+    alpha1 = -pi/2
+    alpha2 = pi/2
+    alpha3 = 0
+    a1 = 1.2
+    a2 = 1.
+    a3 = 0.6
+
 def minmax(val, tol = DEFAULT_SIN_COS_TOLERANCE, limit = 1):
     """
     If -(limit + tol) <= val <= (limit + tol), val is bounded between (-limit, +limit)

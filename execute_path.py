@@ -50,16 +50,16 @@ zee = 0.5
 # viz.update(joint_angles=np.array([0, -pi/2, 0]))
 #####################
 
-## SHOW ALL SOLUTIONS
+# # SHOW ALL SOLUTIONS
 # all_solns = kinematics.ik(xee, yee, zee)
 # for soln in all_solns:
 #     print(kinematics.origins(soln)[2, :])
 #     print(np.sqrt(kinematics.origins(soln)[2, 0]**2 + kinematics.origins(soln)[2, 1]**2))
 #     viz.update(soln)
 #     viz.pause(0.5)
-#####################
+# ####################
 
-## INTERPOLATE FROM ONE POSTURE TO ANOTHER
+# # INTERPOLATE FROM ONE POSTURE TO ANOTHER
 # all_solns = kinematics.ik(xee, yee, zee)
 # interpolated_angles = np.linspace(all_solns[0], all_solns[2], num=40)
 # print(interpolated_angles)
@@ -70,44 +70,54 @@ zee = 0.5
 #     joints = kinematics.random_valid_config()
 #     angles = interpolated_angles[i]
 #     viz.update(angles)
-#####################
+# ####################
 
-## INTERPOLATE TWO WORKSPACE PATHS TO SHOW JOINT JUMPS
-x_s = 2.45
+# INTERPOLATE TWO WORKSPACE PATHS TO SHOW JOINT JUMPS
+x_s = 1.7
 y_s = 0.7
 z_s = 0.2
-x_e = 0.3
+x_e = 1.2
 y_e = 0.7
 z_e = 0.2
 
+# find euclidean distance to determine nb samples
+dist = np.sqrt((x_e-x_s)**2 + (y_e-y_s)**2 + (z_e-z_s)**2)
+spacing = 0.05  # avg distance between samples in [m]
+nb_samples = int(np.ceil(dist/spacing))
 
-interp_rhozee = np.linspace(np.array([x_s, y_s, z_s]), np.array([x_e, y_e, z_e]), num=40)
+interp_rhozee = np.linspace(np.array([x_s, y_s, z_s]), np.array([x_e, y_e, z_e]), num=nb_samples)
 
 all_solns = kinematics.ik(x_s, y_s, z_s)
-configs = [all_solns[1]]
+configs = [all_solns[0]]
 norms = []
 
 viz.pause(2)
 
+# for x, y, z in interp_rhozee:
+#     postures = kinematics.ik(x, y, z)
+#     print("number of postures found: {}".format(len(postures)))
+#     # pick the closest config
+#     best_norm = np.inf
+#     best_config = None
+#     for posture in postures:
+#         norm = sum(np.linalg.norm(np.vstack((configs[-1], posture)), axis=0))
+#         if norm < best_norm:
+#             best_norm = norm
+#             best_config = posture
+#     configs.append(best_config)
+#     norms.append(best_norm)
+
 for x, y, z in interp_rhozee:
     postures = kinematics.ik(x, y, z)
     print("number of postures found: {}".format(len(postures)))
-    # pick the closest config
-    best_norm = np.inf
-    best_config = None
     for posture in postures:
-        norm = sum(np.linalg.norm(np.vstack((configs[-1], posture)), axis=0))
-        if norm < best_norm:
-            best_norm = norm
-            best_config = posture
-    configs.append(best_config)
-    norms.append(best_norm)
+        configs.append(posture)
 
 for config in configs:
     viz.update(config)
     viz.pause(0.15)
 
-######################################################
+#####################################################
 
 done = input("enter when done: ")
 viz.shutdown()

@@ -42,7 +42,6 @@ class CuspidalVisualizer:
         self.color1 = 'black'
         self.color2 = 'deepskyblue'
         self.color3 = 'chartreuse'
-        # self.link_colors = ['red', 'blue', 'yellow', 'green', 'orange']
         self.link_colors = [(1, 0, 0), (1, 0, 0.5), (1, 0, 1), (0.5, 0, 1), (0, 0, 1)]
         self.axis_color = 'white'
         self.fig.patch.set_facecolor(self.color1)
