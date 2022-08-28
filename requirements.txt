@@ -1,6 +1,0 @@
-sympy
-matplotlib
-numpy
-scikit-image
-mayavi
-PyQt5

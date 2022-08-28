@@ -6,8 +6,6 @@ kinematics classes for 3 DOF robots
 import numpy as np
 from numpy import cos, sin, arctan2, pi, arcsin, arccos, sqrt, cbrt
 np.seterr(all='raise')  # raise error iso warning
-from random import randint
-from angles import normalize_angle
 import sympy
 
 DEFAULT_SIN_COS_TOLERANCE = 0.01
